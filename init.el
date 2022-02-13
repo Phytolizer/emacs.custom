@@ -17,10 +17,10 @@
 (setq truncate-lines t) ; Disable wrapping.
 (setq visible-bell t)   ; Enable flashing bell.
 
-(setq custom-file "~/.config/emacs.custom/custom.el")
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
-(set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 140)
+(set-face-attribute 'default nil :font "JetBrains Mono" :height 140)
 
 (setq straight-use-package-by-default t)
 (defvar bootstrap-version)
@@ -37,6 +37,9 @@
   (load bootstrap-file nil 'nomessage))
 
 (straight-use-package 'use-package)
+
+(use-package all-the-icons
+  :if (display-graphic-p))
 
 (use-package evil-nerd-commenter
   :bind ("C-/" . evilnc-comment-or-uncomment-lines))
@@ -180,8 +183,12 @@
   ("C-c p" . projectile-command-map)
   :config
   (projectile-mode 1)
-  (dolist (dir (directory-dirs "~/Code/"))
-    (projectile-add-known-project dir)))
+  (when (file-exists-p "~/Code")
+    (dolist (dir (directory-dirs "~/Code/"))
+      (projectile-add-known-project dir)))
+  (when (file-exists-p "~/Documents")
+    (dolist (dir (directory-dirs "~/Documents/"))
+      (projectile-add-known-project dir))))
 
 (use-package ripgrep)
 
@@ -200,7 +207,7 @@
 
 (defun my/find-init-file ()
   (interactive)
-  (find-file "~/.config/emacs.custom/init.el"))
+  (find-file (expand-file-name "init.el" user-emacs-directory)))
 
 (defun my/search-project ()
   (interactive)
