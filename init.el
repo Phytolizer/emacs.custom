@@ -17,10 +17,10 @@
 (setq truncate-lines t) ; Disable wrapping.
 (setq visible-bell t)   ; Enable flashing bell.
 
-(setq custom-file "~/.config/emacs.custom/custom.el")
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
-(set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 140)
+(set-face-attribute 'default nil :font "JetBrains Mono" :height 80)
 
 (setq straight-use-package-by-default t)
 (defvar bootstrap-version)
@@ -82,12 +82,16 @@
 
 (use-package base16-theme
   :config
-  (load-theme 'base16-tomorrow t))
+  (load-theme 'base16-atelier-forest t))
 
 (use-package which-key
   :config
   (which-key-mode)
   (setq which-key-idle-delay 0.3))
+
+(use-package racket-mode)
+
+(use-package meson-mode)
 
 (use-package typescript-mode)
 (use-package caml
@@ -113,13 +117,21 @@
   :after (typescript-mode esy-mode)
   :init
   (setq lsp-keymap-prefix "C-c l")
+  :config
+  (add-to-list 'lsp-language-id-configuration '(racket-mode . "racket"))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("racket" "-l" "racket-langserver"))
+		    :major-modes '(racket-mode)
+		    :activation-fn (lsp-activate-on "racket")
+		    :server-id 'racketls))
   :hook
   (c-mode . lsp)
   (c++-mode . lsp)
   (cmake-mode . lsp)
   (typescript-mode . lsp)
   (rustic-mode . lsp)
-  (esy-mode . lsp))
+  (esy-mode . lsp)
+  (racket-mode . lsp))
 (use-package lsp-ui)
 (use-package company
   :config
@@ -212,6 +224,10 @@
   (interactive)
   (kill-buffer nil))
 
+(defun my/dired-current ()
+  (interactive)
+  (dired nil))
+
 (use-package evil-leader
   :init
   (setq evil-want-keybinding nil)
@@ -237,6 +253,7 @@
     "gc" 'magit-clone
     "gg" 'magit
     "gi" 'magit-init
+    "o-" 'my/dired-current
     "ot" 'eshell
     "p!" 'projectile-run-shell-command-in-root
     "p&" 'projectile-run-async-shell-command-in-root
@@ -263,3 +280,7 @@
   :after evil
   :config
   (evil-collection-init))
+
+(use-package elcord
+  :config
+  (elcord-mode))
