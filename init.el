@@ -221,6 +221,7 @@
 
 (use-package format-all)
 
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'cmake-mode)
 (use-package json-mode)
 
