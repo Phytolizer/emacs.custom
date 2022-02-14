@@ -94,6 +94,10 @@
 
 (use-package racket-mode)
 
+(use-package raku-mode)
+
+(use-package go-mode)
+
 (use-package haskell-mode)
 
 (use-package yaml-mode
@@ -121,8 +125,10 @@
 	     :repo "ManasJayanth/esy-mode")
   :hook (caml-mode . esy-mode))
 
+(use-package cmake-mode)
+
 (use-package lsp-mode
-  :after (typescript-mode esy-mode)
+  :after (typescript-mode esy-mode cmake-mode)
   :init
   (setq lsp-keymap-prefix "C-c l")
   :config
@@ -136,6 +142,7 @@
   (c-mode . lsp)
   (c++-mode . lsp)
   (cmake-mode . lsp)
+  (go-mode . lsp)
   (typescript-mode . lsp)
   (rustic-mode . lsp)
   (esy-mode . lsp)
@@ -221,8 +228,6 @@
 
 (use-package format-all)
 
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-(require 'cmake-mode)
 (use-package json-mode)
 
 (defun my/find-init-file ()
