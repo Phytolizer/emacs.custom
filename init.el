@@ -20,7 +20,7 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
-(set-face-attribute 'default nil :font "JetBrains Mono" :height 80)
+(set-face-attribute 'default nil :font "Fira Code" :height 100)
 
 (setq straight-use-package-by-default t)
 (defvar bootstrap-version)
@@ -85,7 +85,7 @@
 
 (use-package base16-theme
   :config
-  (load-theme 'base16-atelier-forest t))
+  (load-theme 'base16-black-metal t))
 
 (use-package which-key
   :config
@@ -93,6 +93,13 @@
   (setq which-key-idle-delay 0.3))
 
 (use-package racket-mode)
+
+(use-package haskell-mode)
+
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\`\\.clang-\\(format\\|tidy\\)\\'" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
 
 (use-package meson-mode)
 
@@ -113,8 +120,6 @@
 	     :host github
 	     :repo "ManasJayanth/esy-mode")
   :hook (caml-mode . esy-mode))
-
-(use-package yasnippet)
 
 (use-package lsp-mode
   :after (typescript-mode esy-mode)
@@ -146,6 +151,8 @@
 			 (require 'lsp-pyright)
 			 (lsp))))
 (use-package poetry)
+
+(use-package yasnippet)
 
 (use-package rustic
   :after lsp-mode)
@@ -261,7 +268,7 @@
     "gg" 'magit
     "gi" 'magit-init
     "o-" 'my/dired-current
-    "ot" 'eshell
+    "ot" 'vterm
     "p!" 'projectile-run-shell-command-in-root
     "p&" 'projectile-run-async-shell-command-in-root
     "pa" 'projectile-add-known-project
