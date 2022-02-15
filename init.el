@@ -85,7 +85,7 @@
 
 (use-package base16-theme
   :config
-  (load-theme 'base16-black-metal t))
+  (load-theme 'base16-default-dark t))
 
 (use-package which-key
   :config
@@ -177,9 +177,7 @@
   :straight (helpful
 	     :type git
 	     :host github
-	     :repo "Wilfred/helpful"
-	     :fork (:host github
-			  :repo "rhaps0dy/helpful"))
+	     :repo "Wilfred/helpful")
   :init
   (defvar read-symbol-positions-list nil)
   :bind (("C-h f" . helpful-callable)
@@ -204,16 +202,25 @@
 	    (setq dirs (cons file dirs))))))
     dirs))
 
+(defun my/flatten (l)
+  (apply #'append l))
+
+(use-package s)
+
+(defun my/find-git-repos (path)
+  (if (file-directory-p path)
+      (s-split "\n" (s-trim
+		     (shell-command-to-string (concat "fdfind --exact-depth 2 . " path))))
+    '()))
+
 (use-package projectile
   :bind
   ("C-c p" . projectile-command-map)
   :config
   (projectile-mode 1)
-  (when (file-exists-p "~/Code")
-    (dolist (dir (directory-dirs "~/Code/"))
-      (projectile-add-known-project dir)))
-  (when (file-exists-p "~/Documents")
-    (dolist (dir (directory-dirs "~/Documents/"))
+  (dolist (dir (my/flatten (list (my/find-git-repos "~/Code/Git")
+				 (directory-dirs "~/Documents"))))
+    (when (file-exists-p dir)
       (projectile-add-known-project dir))))
 
 (use-package ripgrep)
