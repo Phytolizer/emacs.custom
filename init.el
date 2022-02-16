@@ -18,9 +18,9 @@
 (setq visible-bell t)   ; Enable flashing bell.
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
+(load custom-file nil 'silent)
 
-(set-face-attribute 'default nil :font "Fira Code" :height 100)
+(set-face-attribute 'default nil :font "Fira Code" :height 200)
 
 (setq straight-use-package-by-default t)
 (defvar bootstrap-version)
@@ -93,12 +93,10 @@
   (setq which-key-idle-delay 0.3))
 
 (use-package racket-mode)
-
 (use-package raku-mode)
-
 (use-package go-mode)
-
 (use-package haskell-mode)
+(use-package powershell)
 
 (use-package yaml-mode
   :config
@@ -191,16 +189,15 @@
 
 (defun directory-dirs (dir)
   "Find all directories in DIR."
-  (unless (file-directory-p dir)
-    (error "Not a directory: `%s'" dir))
-  (let ((dirs '())
-	(files (directory-files dir nil nil t)))
-    (dolist (file files)
-      (unless (member file '("." ".."))
-	(let ((file (concat (file-name-as-directory dir) file)))
-	  (when (file-directory-p file)
-	    (setq dirs (cons file dirs))))))
-    dirs))
+  (when (file-directory-p dir)
+    (let ((dirs '())
+	  (files (directory-files dir nil nil t)))
+      (dolist (file files)
+	(unless (member file '("." ".."))
+	  (let ((file (concat (file-name-as-directory dir) file)))
+	    (when (file-directory-p file)
+	      (setq dirs (cons file dirs))))))
+      dirs)))
 
 (defun my/flatten (l)
   (apply #'append l))
@@ -210,18 +207,21 @@
 (defun my/find-git-repos (path)
   (if (file-directory-p path)
       (s-split "\n" (s-trim
-		     (shell-command-to-string (concat "fdfind --exact-depth 2 . " path))))
+		     (shell-command-to-string (concat "fd --exact-depth 2 . " path))))
     '()))
+
+(defun my/discover-projects ()
+  (dolist (dir (my/flatten (list (my/find-git-repos "~/Code/Git")
+				 (directory-dirs "~/Documents"))))
+    (when (file-exists-p dir)
+      (projectile-add-known-project dir))))
 
 (use-package projectile
   :bind
   ("C-c p" . projectile-command-map)
   :config
   (projectile-mode 1)
-  (dolist (dir (my/flatten (list (my/find-git-repos "~/Code/Git")
-				 (directory-dirs "~/Documents"))))
-    (when (file-exists-p dir)
-      (projectile-add-known-project dir))))
+  (my/discover-projects))
 
 (use-package ripgrep)
 
@@ -236,6 +236,12 @@
 (use-package format-all)
 
 (use-package json-mode)
+
+(use-package restart-emacs)
+
+(use-package pdf-tools
+  :config
+  (pdf-tools-install))
 
 (defun my/find-init-file ()
   (interactive)
@@ -292,7 +298,8 @@
     "pr" 'project-compile
     "ps" 'projectile-save-project-buffers
     "pt" 'projectile-run-eshell
-    "qq" 'save-buffers-kill-terminal))
+    "qq" 'save-buffers-kill-terminal
+    "qr" 'restart-emacs))
 
 (use-package undo-tree
   :config
@@ -311,3 +318,7 @@
 (use-package elcord
   :config
   (elcord-mode))
+
+(add-hook 'c-mode-hook #'lsp)
+(add-hook 'c++-mode-hook #'lsp)
+(add-hook 'cmake-mode-hook #'lsp)
